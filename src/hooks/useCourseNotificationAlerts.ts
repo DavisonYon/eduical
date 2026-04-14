@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
+const COURSE_NOTIFICATIONS_UPDATED_EVENT = 'educial:course-notifications-updated'
+
 export type CourseNotificationRow = {
   id: string
   title: string
@@ -93,6 +95,16 @@ export function useCourseNotificationAlerts(pollMs = 45000) {
     return () => window.clearInterval(t)
   }, [user, refresh, pollMs])
 
+  useEffect(() => {
+    const handleNotificationsUpdated = () => {
+      refresh()
+    }
+    window.addEventListener(COURSE_NOTIFICATIONS_UPDATED_EVENT, handleNotificationsUpdated)
+    return () => {
+      window.removeEventListener(COURSE_NOTIFICATIONS_UPDATED_EVENT, handleNotificationsUpdated)
+    }
+  }, [refresh])
+
   const markRead = useCallback(
     async (notificationIds: string[]) => {
       if (!user || notificationIds.length === 0) return
@@ -103,7 +115,10 @@ export function useCourseNotificationAlerts(pollMs = 45000) {
       const { error } = await supabase.from('course_notification_reads').upsert(rows, {
         onConflict: 'notification_id,user_id',
       })
-      if (!error) await refresh()
+      if (!error) {
+        await refresh()
+        window.dispatchEvent(new Event(COURSE_NOTIFICATIONS_UPDATED_EVENT))
+      }
     },
     [user, refresh]
   )

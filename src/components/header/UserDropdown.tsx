@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase'
 export default function UserDropdown() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [profilePicture, setProfilePicture] = useState<string | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
@@ -16,8 +17,14 @@ export default function UserDropdown() {
     let cancelled = false
     ;(async () => {
       try {
-        const { data } = await supabase.from('profiles').select('profile_picture').eq('id', user.id).single()
-        if (!cancelled && data?.profile_picture) setProfilePicture(data.profile_picture)
+        const { data } = await supabase
+          .from('profiles')
+          .select('profile_picture, role')
+          .eq('id', user.id)
+          .single()
+        if (cancelled) return
+        if (data?.profile_picture) setProfilePicture(data.profile_picture)
+        setIsAdmin(data?.role === 'super_admin')
       } catch (e) {
         console.error(e)
       }
@@ -117,6 +124,19 @@ export default function UserDropdown() {
             >
               Settings
             </a>
+            {isAdmin && (
+              <a
+                href="#"
+                className="block px-4 py-2 text-sm text-gray-900 transition-colors hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setDropdownOpen(false)
+                  navigate('/admin/reports')
+                }}
+              >
+                Manage bug reports
+              </a>
+            )}
             <button
               onClick={handleSignOut}
               className="block w-full px-4 py-2 text-left text-sm text-gray-900 transition-colors hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"

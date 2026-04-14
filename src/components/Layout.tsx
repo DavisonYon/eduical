@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react'
-import { Outlet } from 'react-router-dom'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { Outlet, matchPath, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import RightSidebar from './RightSidebar'
@@ -10,18 +10,42 @@ import {
 } from '../lib/rightSidebarCookie'
 
 export default function Layout() {
+  const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(() =>
     typeof document !== 'undefined' ? getRightSidebarCollapsedFromCookie() : false
   )
+  const preCourseCollapsedRef = useRef<boolean | null>(null)
+  const isCourseDetailView = matchPath('/classes/:courseId', location.pathname) !== null
+
+  useEffect(() => {
+    if (isCourseDetailView) {
+      if (preCourseCollapsedRef.current === null) {
+        preCourseCollapsedRef.current = rightSidebarCollapsed
+      }
+      if (!rightSidebarCollapsed) {
+        setRightSidebarCollapsed(true)
+      }
+      return
+    }
+
+    if (preCourseCollapsedRef.current !== null) {
+      const previousCollapsed = preCourseCollapsedRef.current
+      preCourseCollapsedRef.current = null
+      if (previousCollapsed !== rightSidebarCollapsed) {
+        setRightSidebarCollapsed(previousCollapsed)
+      }
+    }
+  }, [isCourseDetailView, rightSidebarCollapsed])
 
   const toggleRightSidebarCollapsed = useCallback(() => {
+    if (isCourseDetailView) return
     setRightSidebarCollapsed((prev) => {
       const next = !prev
       setRightSidebarCollapsedCookie(next)
       return next
     })
-  }, [])
+  }, [isCourseDetailView])
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">

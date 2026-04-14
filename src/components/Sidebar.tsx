@@ -158,6 +158,25 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               </svg>
               Settings
             </Link>
+            <div className="mt-3 px-4 text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/legal/tos"
+                  onClick={() => setIsOpen(false)}
+                  className="hover:text-gray-900 dark:hover:text-gray-200"
+                >
+                  Terms
+                </Link>
+                <span>•</span>
+                <Link
+                  to="/legal/privacy"
+                  onClick={() => setIsOpen(false)}
+                  className="hover:text-gray-900 dark:hover:text-gray-200"
+                >
+                  Privacy
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>

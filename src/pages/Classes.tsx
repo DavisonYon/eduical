@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { useCourseNotificationAlerts } from '../hooks/useCourseNotificationAlerts'
 
 type CourseRow = {
   id: string
@@ -14,6 +15,7 @@ type CourseRow = {
 
 export default function Classes() {
   const { user } = useAuth()
+  const { unread, unreadCount, markRead } = useCourseNotificationAlerts()
   const [courses, setCourses] = useState<CourseRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -175,6 +177,52 @@ export default function Classes() {
         <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-100">
           {error}
         </div>
+      )}
+
+      {unreadCount > 0 && (
+        <section className="mb-5 rounded-xl border border-amber-200 bg-amber-50/80 p-4 dark:border-amber-900/50 dark:bg-amber-950/30">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+              Unread announcements ({unreadCount})
+            </h2>
+            <button
+              type="button"
+              onClick={() => markRead(unread.map((n) => n.id))}
+              className="rounded-lg bg-amber-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-800 dark:bg-amber-600 dark:hover:bg-amber-500"
+            >
+              Dismiss all
+            </button>
+          </div>
+          <ul className="space-y-2">
+            {unread.map((n) => (
+              <li
+                key={n.id}
+                className="rounded-lg border border-amber-200 bg-white px-3 py-3 dark:border-amber-900/50 dark:bg-gray-900/50"
+              >
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {n.courses?.name || 'Class announcement'}
+                </p>
+                <p className="mt-1 text-sm font-medium text-gray-800 dark:text-gray-200">{n.title}</p>
+                <p className="mt-1 line-clamp-2 text-xs text-gray-600 dark:text-gray-400">{n.body}</p>
+                <div className="mt-2 flex items-center gap-3">
+                  <Link
+                    to={`/classes/${n.course_id}`}
+                    className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+                  >
+                    Open class
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => markRead([n.id])}
+                    className="text-xs font-medium text-amber-800 hover:underline dark:text-amber-300"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {loading ? (

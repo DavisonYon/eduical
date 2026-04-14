@@ -1,6 +1,6 @@
 export default function Notifications() {
   return (
-    <button className="bg-gray-800 border border-gray-700 text-white hover:bg-gray-700 rounded-lg p-2 transition-colors focus:outline-none">
+    <button className="rounded-lg border border-gray-300 bg-white p-2 text-gray-800 transition-colors hover:bg-gray-100 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700">
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"

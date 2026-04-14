@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { invalidateDashboardFeedCache } from '../lib/dashboardFeedCache'
+import { invalidateMessagesUICache } from '../lib/messagesUICache'
 import { ensureProfile } from '../utils/ensureProfile'
 
 type Session = Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session']
@@ -118,6 +120,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
+    invalidateDashboardFeedCache()
+    invalidateMessagesUICache()
     await supabase.auth.signOut()
   }
 

@@ -78,12 +78,12 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
   }
 
   return (
-    <div className="border border-gray-700 rounded-lg p-4 bg-gray-900">
+    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-white">Select a GIF</h3>
         <button
           onClick={onClose}
-          className="text-gray-400 hover:text-white"
+          className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -96,7 +96,7 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search GIFs..."
-        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+        className="mb-4 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
       />
 
       {error && (
@@ -118,7 +118,7 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
       )}
 
       {loading ? (
-        <div className="text-center py-8 text-gray-400">Loading GIFs...</div>
+        <div className="py-8 text-center text-gray-600 dark:text-gray-400">Loading GIFs...</div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
           {gifs.map((gif) => (
@@ -138,7 +138,7 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
       )}
 
       {!loading && gifs.length === 0 && !error && (
-        <div className="text-center py-8 text-gray-400">
+        <div className="py-8 text-center text-gray-600 dark:text-gray-400">
           No GIFs found. Try a different search term.
         </div>
       )}

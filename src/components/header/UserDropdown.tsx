@@ -12,18 +12,18 @@ export default function UserDropdown() {
 
   // Fetch profile picture
   useEffect(() => {
-    if (user) {
-      supabase
-        .from('profiles')
-        .select('profile_picture')
-        .eq('id', user.id)
-        .single()
-        .then(({ data }) => {
-          if (data?.profile_picture) {
-            setProfilePicture(data.profile_picture)
-          }
-        })
-        .catch(console.error)
+    if (!user) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { data } = await supabase.from('profiles').select('profile_picture').eq('id', user.id).single()
+        if (!cancelled && data?.profile_picture) setProfilePicture(data.profile_picture)
+      } catch (e) {
+        console.error(e)
+      }
+    })()
+    return () => {
+      cancelled = true
     }
   }, [user])
 
@@ -68,17 +68,17 @@ export default function UserDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex items-center space-x-2 text-sm font-medium bg-gray-800 border border-gray-700 text-white hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors focus:outline-none"
+        className="flex items-center space-x-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-100 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
       >
         {profilePicture ? (
           <img
             src={profilePicture}
             alt="Profile"
-            className="w-8 h-8 rounded-full object-cover border border-gray-600"
+            className="h-8 w-8 rounded-full border border-gray-300 object-cover dark:border-gray-600"
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
-            <span className="text-white font-medium text-xs">{getUserInitials()}</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+            <span className="text-xs font-medium text-gray-700 dark:text-white">{getUserInitials()}</span>
           </div>
         )}
         <svg 
@@ -93,33 +93,33 @@ export default function UserDropdown() {
 
       {/* Dropdown menu */}
       {dropdownOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50">
+        <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
           <div className="py-1">
             <a
               href="#"
-              className="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition-colors"
+              className="block px-4 py-2 text-sm text-gray-900 transition-colors hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
               onClick={(e) => {
                 e.preventDefault()
                 setDropdownOpen(false)
-                navigate('/profile')
+                if (user?.id) navigate(`/user/${user.id}`)
               }}
             >
-              Your Profile
+              View profile
             </a>
             <a
               href="#"
-              className="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition-colors"
+              className="block px-4 py-2 text-sm text-gray-900 transition-colors hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
               onClick={(e) => {
                 e.preventDefault()
                 setDropdownOpen(false)
-                navigate('/profile')
+                navigate('/settings')
               }}
             >
               Settings
             </a>
             <button
               onClick={handleSignOut}
-              className="w-full text-left block px-4 py-2 text-sm text-white hover:bg-gray-700 transition-colors"
+              className="block w-full px-4 py-2 text-left text-sm text-gray-900 transition-colors hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             >
               Sign out
             </button>

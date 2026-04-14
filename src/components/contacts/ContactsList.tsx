@@ -94,7 +94,7 @@ export default function ContactsList({ onFriendRequestSent }: ContactsListProps 
 
   if (loading) {
     return (
-      <div className="text-center py-8 text-gray-400 text-sm">
+      <div className="py-8 text-center text-sm text-gray-600 dark:text-gray-400">
         Loading contacts...
       </div>
     )
@@ -110,7 +110,7 @@ export default function ContactsList({ onFriendRequestSent }: ContactsListProps 
 
   if (contacts.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400 text-sm">
+      <div className="py-8 text-center text-sm text-gray-600 dark:text-gray-400">
         <p>No contacts found</p>
       </div>
     )
@@ -121,33 +121,41 @@ export default function ContactsList({ onFriendRequestSent }: ContactsListProps 
       {contacts.map((contact) => (
         <div
           key={contact.id}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors group"
+          className="group flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
         >
-          {contact.profile_picture ? (
-            <img
-              src={contact.profile_picture}
-              alt={getDisplayName(contact)}
-              className="w-10 h-10 rounded-full object-cover border border-gray-600 flex-shrink-0"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-medium text-sm">
-                {getInitials(contact)}
-              </span>
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
+          <Link to={`/user/${contact.id}`} className="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+            {contact.profile_picture ? (
+              <img
+                src={contact.profile_picture}
+                alt={getDisplayName(contact)}
+                className="h-10 w-10 rounded-full border border-gray-300 object-cover dark:border-gray-600"
+              />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+                <span className="text-sm font-medium text-gray-800 dark:text-white">
+                  {getInitials(contact)}
+                </span>
+              </div>
+            )}
+          </Link>
+          <div className="min-w-0 flex-1">
             <Link
-              to={`/conversations?with=${contact.id}`}
-              className="text-white font-medium text-sm truncate block hover:text-blue-400 transition-colors"
+              to={`/user/${contact.id}`}
+              className="block truncate text-sm font-medium text-gray-900 transition-colors hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
             >
               {getDisplayName(contact)}
             </Link>
-            {contact.full_name && contact.email && (
-              <p className="text-gray-400 text-xs truncate">
-                {contact.email}
-              </p>
-            )}
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              <Link
+                to={`/conversations?with=${contact.id}`}
+                className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+              >
+                Message
+              </Link>
+              {contact.full_name && contact.email && (
+                <span className="truncate text-xs text-gray-600 dark:text-gray-400">{contact.email}</span>
+              )}
+            </div>
           </div>
           <div className="flex-shrink-0">
             <FriendRequestButton userId={contact.id} onStatusChange={onFriendRequestSent} />

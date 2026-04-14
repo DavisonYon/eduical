@@ -5,6 +5,7 @@ interface User {
   email?: string
   user_metadata?: {
     full_name?: string
+    student_id?: string
   }
 }
 
@@ -23,6 +24,7 @@ export async function ensureProfile(user: User) {
   // Create profile if it doesn't exist
   const fullName = user.user_metadata?.full_name || null
   const email = user.email || null
+  const studentId = user.user_metadata?.student_id || null
 
   const { data: newProfile, error } = await supabase
     .from('profiles')
@@ -30,6 +32,7 @@ export async function ensureProfile(user: User) {
       id: user.id,
       full_name: fullName,
       email: email,
+      student_id: studentId,
     })
     .select()
     .single()

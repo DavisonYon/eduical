@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 export default function Register() {
   const [fullName, setFullName] = useState('')
+  const [studentId, setStudentId] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -28,15 +29,21 @@ export default function Register() {
       return
     }
 
+    const normalizedEmail = email.trim().toLowerCase()
+    if (!/@(gatech\.edu|gmail\.com)$/i.test(normalizedEmail)) {
+      setError('Sign up requires a @gatech.edu or @gmail.com email address.')
+      return
+    }
+
     setLoading(true)
 
-    const { error } = await signUp(email, password, fullName)
+    const { error } = await signUp(normalizedEmail, password, fullName, studentId)
 
     if (error) {
       setError(error.message)
       setLoading(false)
     } else {
-      setMessage('Account created! Please check your email to verify your account.')
+      setMessage('Account created. After email confirmation, a super admin must verify your account before full access.')
       setTimeout(() => {
         navigate('/login')
       }, 3000)
@@ -92,6 +99,24 @@ export default function Register() {
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
               placeholder="you@example.com"
             />
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">Allowed domains: @gatech.edu or @gmail.com</p>
+          </div>
+
+          <div>
+            <label htmlFor="studentId" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Student ID (optional)
+            </label>
+            <input
+              id="studentId"
+              type="text"
+              value={studentId}
+              onChange={(e) => setStudentId(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+              placeholder="e.g. 903123456"
+            />
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+              Optional, but can help speed up account verification.
+            </p>
           </div>
 
           <div>

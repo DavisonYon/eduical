@@ -7,6 +7,10 @@ export default function UserDropdown() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [profilePicture, setProfilePicture] = useState<string | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [canManageUsers, setCanManageUsers] = useState(false)
+  const [canManageRoles, setCanManageRoles] = useState(false)
+  const [canVerifyAccounts, setCanVerifyAccounts] = useState(false)
+  const [canManageBugReports, setCanManageBugReports] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
@@ -17,14 +21,53 @@ export default function UserDropdown() {
     let cancelled = false
     ;(async () => {
       try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('profile_picture, role')
-          .eq('id', user.id)
-          .single()
+        const [
+          { data },
+          { data: superPermission },
+          { data: usersManagePermission },
+          { data: rolesManagePermission },
+          { data: verifyAccountsPermission },
+          { data: bugReportsPermission },
+        ] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('profile_picture, role')
+            .eq('id', user.id)
+            .single(),
+          supabase.rpc('user_has_permission', {
+            permission_key: 'system.super_admin',
+            target_scope_type: 'global',
+            target_scope_id: null,
+          }),
+          supabase.rpc('user_has_permission', {
+            permission_key: 'users.manage',
+            target_scope_type: 'global',
+            target_scope_id: null,
+          }),
+          supabase.rpc('user_has_permission', {
+            permission_key: 'roles.manage',
+            target_scope_type: 'global',
+            target_scope_id: null,
+          }),
+          supabase.rpc('user_has_permission', {
+            permission_key: 'accounts.verify',
+            target_scope_type: 'global',
+            target_scope_id: null,
+          }),
+          supabase.rpc('user_has_permission', {
+            permission_key: 'bug_reports.manage',
+            target_scope_type: 'global',
+            target_scope_id: null,
+          }),
+        ])
         if (cancelled) return
         if (data?.profile_picture) setProfilePicture(data.profile_picture)
-        setIsAdmin(data?.role === 'super_admin')
+        const admin = data?.role === 'super_admin' || Boolean(superPermission)
+        setIsAdmin(admin)
+        setCanManageUsers(admin || Boolean(usersManagePermission))
+        setCanManageRoles(admin || Boolean(rolesManagePermission))
+        setCanVerifyAccounts(admin || Boolean(verifyAccountsPermission))
+        setCanManageBugReports(admin || Boolean(bugReportsPermission))
       } catch (e) {
         console.error(e)
       }
@@ -33,6 +76,8 @@ export default function UserDropdown() {
       cancelled = true
     }
   }, [user])
+
+  const hasAnyAdminAccess = isAdmin || canManageUsers || canManageRoles || canVerifyAccounts || canManageBugReports
 
   // Get user initials from user metadata or email
   const getUserInitials = () => {
@@ -124,18 +169,61 @@ export default function UserDropdown() {
             >
               Settings
             </a>
-            {isAdmin && (
-              <a
-                href="#"
-                className="block px-4 py-2 text-sm text-gray-900 transition-colors hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                onClick={(e) => {
-                  e.preventDefault()
-                  setDropdownOpen(false)
-                  navigate('/admin/reports')
-                }}
-              >
-                Manage bug reports
-              </a>
+            {hasAnyAdminAccess && (
+              <>
+              {canManageUsers && (
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-gray-900 transition-colors hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setDropdownOpen(false)
+                    navigate('/admin/users')
+                  }}
+                >
+                  User management
+                </a>
+              )}
+              {canManageRoles && (
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-gray-900 transition-colors hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setDropdownOpen(false)
+                    navigate('/admin/roles')
+                  }}
+                >
+                  Role management
+                </a>
+              )}
+              {canVerifyAccounts && (
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-gray-900 transition-colors hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setDropdownOpen(false)
+                    navigate('/admin/verifications')
+                  }}
+                >
+                  Verify accounts
+                </a>
+              )}
+              {canManageBugReports && (
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-gray-900 transition-colors hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setDropdownOpen(false)
+                    navigate('/admin/reports')
+                  }}
+                >
+                  Manage bug reports
+                </a>
+              )}
+              </>
             )}
             <button
               onClick={handleSignOut}

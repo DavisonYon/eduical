@@ -16,6 +16,7 @@ import {
   loadSidebarMessagesData,
   loadThreadMessages,
 } from '../lib/messagesDataLoader'
+import { usePermission } from '../hooks/usePermission'
 import {
   readMessagesUISnapshot,
   writeMessagesUISnapshot,
@@ -53,6 +54,11 @@ export default function Conversations() {
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [showBlocked, setShowBlocked] = useState(false)
+  const { allowed: canModerateChat } = usePermission(
+    'chat.moderate',
+    'chat',
+    selectedConversation?.id || null
+  )
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
@@ -365,6 +371,16 @@ export default function Conversations() {
     refreshSidebarFromServer()
   }
 
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!selectedConversation) return
+    const { error } = await supabase.from('messages').delete().eq('id', messageId)
+    if (error) {
+      console.error('Error deleting message:', error)
+      return
+    }
+    setMessages((prev) => prev.filter((m) => m.id !== messageId))
+  }
+
   const isRequestReceiver =
     selectedConversation?.status === 'request_pending' &&
     messageRequests.some((r) => r.conversation.id === selectedConversation.id)
@@ -582,6 +598,17 @@ export default function Conversations() {
                           minute: '2-digit',
                         })}
                       </p>
+                      {(canModerateChat || msg.sender_id === user?.id) && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteMessage(msg.id)}
+                          className={`mt-1 text-xs underline ${
+                            msg.sender_id === user?.id ? 'text-blue-100' : 'text-red-600 dark:text-red-400'
+                          }`}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

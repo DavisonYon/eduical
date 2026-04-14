@@ -4,6 +4,7 @@ import { NotificationProvider } from './contexts/NotificationContext'
 import { UnreadMessagesProvider } from './contexts/UnreadMessagesContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
+import PermissionRoute from './components/PermissionRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -25,6 +26,10 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import ReportBug from './pages/ReportBug'
 import AdminBugReports from './pages/AdminBugReports'
 import FloatingBugReportButton from './components/FloatingBugReportButton'
+import VerificationStatus from './pages/VerificationStatus'
+import AdminVerifications from './pages/AdminVerifications'
+import AdminUsers from './pages/AdminUsers'
+import AdminRoles from './pages/AdminRoles'
 
 function App() {
   return (
@@ -43,6 +48,7 @@ function App() {
                 <Route path="legal/tos" element={<TermsOfService />} />
                 <Route path="legal/privacy" element={<PrivacyPolicy />} />
                 <Route path="report" element={<ReportBug />} />
+                <Route path="verification" element={<VerificationStatus />} />
                 <Route element={<ProtectedRoute />}>
                   <Route index element={<Dashboard />} />
                   <Route path="settings" element={<Settings />} />
@@ -55,7 +61,18 @@ function App() {
                   <Route path="classes" element={<Classes />} />
                   <Route path="classes/:courseId" element={<ClassCourseDetail />} />
                   <Route element={<AdminRoute />}>
-                    <Route path="admin/reports" element={<AdminBugReports />} />
+                    <Route element={<PermissionRoute permissionKey="users.manage" />}>
+                      <Route path="admin/users" element={<AdminUsers />} />
+                    </Route>
+                    <Route element={<PermissionRoute permissionKey="roles.manage" />}>
+                      <Route path="admin/roles" element={<AdminRoles />} />
+                    </Route>
+                    <Route element={<PermissionRoute permissionKey="bug_reports.manage" />}>
+                      <Route path="admin/reports" element={<AdminBugReports />} />
+                    </Route>
+                    <Route element={<PermissionRoute permissionKey="accounts.verify" />}>
+                      <Route path="admin/verifications" element={<AdminVerifications />} />
+                    </Route>
                   </Route>
                 </Route>
               </Route>

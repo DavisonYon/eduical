@@ -11,7 +11,7 @@ interface AuthContextType {
   user: User
   session: Session
   loading: boolean
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>
+  signUp: (email: string, password: string, fullName?: string, studentId?: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => Promise<void>
 }
@@ -83,13 +83,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, studentId?: string) => {
+    const normalizedEmail = email.trim().toLowerCase()
+    const allowedDomain = /@(gatech\.edu|gmail\.com)$/i.test(normalizedEmail)
+    if (!allowedDomain) {
+      return { error: { message: 'Please use a @gatech.edu or @gmail.com email address.' } }
+    }
+
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: normalizedEmail,
       password,
       options: {
         data: {
           full_name: fullName,
+          student_id: studentId?.trim() || null,
         },
       },
     })

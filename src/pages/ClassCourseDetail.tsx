@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import CourseForum from '../components/classes/CourseForum'
 import CourseDocuments from '../components/classes/CourseDocuments'
 import CourseNotificationsPanel from '../components/classes/CourseNotificationsPanel'
+import { usePermission } from '../hooks/usePermission'
 
 type CourseRow = {
   id: string
@@ -44,6 +45,11 @@ export default function ClassCourseDetail() {
   const [editEnd, setEditEnd] = useState('')
   const [savingCourse, setSavingCourse] = useState(false)
   const [previewAsStudent, setPreviewAsStudent] = useState(false)
+  const { allowed: canManageAnnouncements } = usePermission(
+    'course.announcements.manage',
+    'course',
+    courseId || null
+  )
 
   const isSuperAdmin = profileRole === 'super_admin'
   const showAdminUi = isSuperAdmin && !previewAsStudent
@@ -377,7 +383,7 @@ export default function ClassCourseDetail() {
         <CourseNotificationsPanel
           courseId={course.id}
           courseName={course.name}
-          isSuperAdmin={showAdminUi}
+          isSuperAdmin={showAdminUi || canManageAnnouncements}
         />
       )}
 

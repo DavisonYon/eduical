@@ -19,9 +19,48 @@ export default function AdminRoute() {
         return
       }
       setChecking(true)
-      const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+      const [
+        { data: profileData },
+        { data: superPermission },
+        { data: usersManagePermission },
+        { data: rolesManagePermission },
+        { data: verifyAccountsPermission },
+        { data: bugReportsPermission },
+      ] = await Promise.all([
+        supabase.from('profiles').select('role').eq('id', user.id).single(),
+        supabase.rpc('user_has_permission', {
+          permission_key: 'system.super_admin',
+          target_scope_type: 'global',
+          target_scope_id: null,
+        }),
+        supabase.rpc('user_has_permission', {
+          permission_key: 'users.manage',
+          target_scope_type: 'global',
+          target_scope_id: null,
+        }),
+        supabase.rpc('user_has_permission', {
+          permission_key: 'roles.manage',
+          target_scope_type: 'global',
+          target_scope_id: null,
+        }),
+        supabase.rpc('user_has_permission', {
+          permission_key: 'accounts.verify',
+          target_scope_type: 'global',
+          target_scope_id: null,
+        }),
+        supabase.rpc('user_has_permission', {
+          permission_key: 'bug_reports.manage',
+          target_scope_type: 'global',
+          target_scope_id: null,
+        }),
+      ])
       if (!cancelled) {
-        setIsAdmin(data?.role === 'super_admin')
+        const hasPermission =
+          Boolean(usersManagePermission) ||
+          Boolean(rolesManagePermission) ||
+          Boolean(verifyAccountsPermission) ||
+          Boolean(bugReportsPermission)
+        setIsAdmin(profileData?.role === 'super_admin' || Boolean(superPermission) || hasPermission)
         setChecking(false)
       }
     }

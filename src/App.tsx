@@ -3,66 +3,53 @@ import { AuthProvider } from './contexts/AuthContext'
 import { NotificationProvider } from './contexts/NotificationContext'
 import { UnreadMessagesProvider } from './contexts/UnreadMessagesContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import Layout from './components/Layout'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
-import Profile from './pages/Profile'
+import Settings from './pages/Settings'
+import UserProfile from './pages/UserProfile'
 import Organizations from './pages/Organizations'
 import OrganizationDetail from './pages/OrganizationDetail'
 import Conversations from './pages/Conversations'
+import Events from './pages/Events'
+import EventVideo from './pages/EventVideo'
+import SearchPage from './pages/SearchPage'
+import PostDetail from './pages/PostDetail'
+import Classes from './pages/Classes'
+import ClassCourseDetail from './pages/ClassCourseDetail'
+import ExternalLinkGate from './components/ExternalLinkGate'
 
 function App() {
   return (
     <Router>
+      <ExternalLinkGate />
       <AuthProvider>
         <NotificationProvider>
-        <UnreadMessagesProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/organizations"
-            element={
-              <ProtectedRoute>
-                <Organizations />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/organizations/:slug"
-            element={
-              <ProtectedRoute>
-                <OrganizationDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/conversations"
-            element={
-              <ProtectedRoute>
-                <Conversations />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        </UnreadMessagesProvider>
+          <UnreadMessagesProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route element={<Layout />}>
+                <Route path="user/:userId" element={<UserProfile />} />
+                <Route path="search" element={<SearchPage />} />
+                <Route path="p/:postId" element={<PostDetail />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="profile" element={<Navigate to="/settings" replace />} />
+                  <Route path="organizations" element={<Organizations />} />
+                  <Route path="organizations/:slug" element={<OrganizationDetail />} />
+                  <Route path="conversations" element={<Conversations />} />
+                  <Route path="events" element={<Events />} />
+                  <Route path="events/watch/:videoId" element={<EventVideo />} />
+                  <Route path="classes" element={<Classes />} />
+                  <Route path="classes/:courseId" element={<ClassCourseDetail />} />
+                </Route>
+              </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </UnreadMessagesProvider>
         </NotificationProvider>
       </AuthProvider>
     </Router>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Layout from '../components/Layout'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -14,7 +13,7 @@ interface Organization {
   slug: string
 }
 
-type MembershipStatus = 'none' | 'pending' | 'approved' | 'banned'
+type MembershipStatus = 'none' | 'pending' | 'approved' | 'rejected' | 'banned'
 
 interface Membership {
   organization_id: string
@@ -208,7 +207,7 @@ export default function Organizations() {
 
     if (m.status === 'pending') {
       return (
-        <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-900/60 text-yellow-300">
+        <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs text-yellow-900 dark:bg-yellow-900/60 dark:text-yellow-300">
           Request pending
         </span>
       )
@@ -216,7 +215,7 @@ export default function Organizations() {
 
     if (m.status === 'banned') {
       return (
-        <span className="text-xs px-2 py-0.5 rounded-full bg-red-900/60 text-red-300">
+        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-800 dark:bg-red-900/60 dark:text-red-300">
           Banned
         </span>
       )
@@ -225,14 +224,14 @@ export default function Organizations() {
     if (m.status === 'approved') {
       if (m.role === 'owner' || m.role === 'manager') {
         return (
-          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-300">
+          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900/60 dark:text-blue-300">
             {m.role === 'owner' ? 'Owner' : 'Manager'}
           </span>
         )
       }
 
       return (
-        <span className="text-xs px-2 py-0.5 rounded-full bg-green-900/60 text-green-300">
+        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800 dark:bg-green-900/60 dark:text-green-300">
           Member
         </span>
       )
@@ -387,12 +386,12 @@ export default function Organizations() {
   }
 
   return (
-    <Layout>
-      <div className="max-w-5xl mx-auto space-y-6">
+    <>
+      <div className="mx-auto max-w-5xl space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Organizations</h1>
-            <p className="text-sm text-gray-400 mt-1">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Organizations</h1>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
               Discover and join student groups, clubs, and organizations.
             </p>
           </div>
@@ -409,29 +408,29 @@ export default function Organizations() {
         </div>
 
         {profileRole === 'super_admin' && (
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-3">
-            <p className="text-sm font-medium text-white">Create a new organization</p>
+          <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <p className="text-sm font-medium text-gray-900 dark:text-white">Create a new organization</p>
             <div className="space-y-3">
               <input
                 type="text"
                 value={newOrgName}
                 onChange={(e) => setNewOrgName(e.target.value)}
                 placeholder="Organization name"
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
               />
               <textarea
                 value={newOrgDescription}
                 onChange={(e) => setNewOrgDescription(e.target.value)}
                 placeholder="Description (optional)"
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                 rows={2}
               />
-              <label className="inline-flex items-center gap-2 text-xs text-gray-300">
+              <label className="inline-flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
                 <input
                   type="checkbox"
                   checked={newOrgPrivate}
                   onChange={(e) => setNewOrgPrivate(e.target.checked)}
-                  className="rounded border-gray-600 bg-gray-900 text-blue-500 focus:ring-blue-500"
+                  className="rounded border-gray-300 bg-white text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-blue-500"
                 />
                 Private group (only members can see posts)
               </label>
@@ -450,13 +449,13 @@ export default function Organizations() {
         )}
 
         {loading ? (
-          <div className="text-center py-12 text-gray-400 text-sm">Loading organizations...</div>
+          <div className="py-12 text-center text-sm text-gray-600 dark:text-gray-400">Loading organizations...</div>
         ) : error ? (
-          <div className="bg-red-900/50 border border-red-700 text-red-200 rounded-lg p-4 text-sm">
+          <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/50 dark:text-red-200">
             {error}
           </div>
         ) : organizations.length === 0 ? (
-          <div className="text-center py-12 text-gray-400 text-sm">
+          <div className="py-12 text-center text-sm text-gray-600 dark:text-gray-400">
             No organizations yet.
             {profileRole === 'super_admin' && (
               <> Create the first one to get things started.</>
@@ -472,7 +471,7 @@ export default function Organizations() {
               return (
                 <div
                   key={org.id}
-                  className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden flex flex-col"
+                  className="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
                 >
                   {org.image_url ? (
                     <img
@@ -481,7 +480,7 @@ export default function Organizations() {
                       className="h-32 w-full object-cover"
                     />
                   ) : (
-                    <div className="h-24 w-full bg-gradient-to-r from-blue-900/60 via-indigo-900/60 to-slate-900/60 flex items-center justify-center text-3xl font-semibold text-blue-300">
+                    <div className="flex h-24 w-full items-center justify-center bg-gradient-to-r from-blue-100 via-indigo-100 to-slate-100 text-3xl font-semibold text-blue-700 dark:from-blue-900/60 dark:via-indigo-900/60 dark:to-slate-900/60 dark:text-blue-300">
                       {org.name
                         .split(' ')
                         .map((n) => n[0])
@@ -493,19 +492,19 @@ export default function Organizations() {
                   <div className="flex-1 flex flex-col p-4 space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <h2 className="text-sm font-semibold text-white line-clamp-2">
+                        <h2 className="line-clamp-2 text-sm font-semibold text-gray-900 dark:text-white">
                           {org.name}
                         </h2>
-                        <p className="mt-1 text-xs text-gray-400 line-clamp-3">
+                        <p className="mt-1 line-clamp-3 text-xs text-gray-600 dark:text-gray-400">
                           {org.description || 'No description provided yet.'}
                         </p>
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full ${
+                          className={`rounded-full border px-2 py-0.5 text-[10px] ${
                             org.is_private
-                              ? 'bg-gray-900 text-gray-300 border border-gray-700'
-                              : 'bg-blue-900/60 text-blue-200 border border-blue-800/60'
+                              ? 'border-gray-300 bg-gray-100 text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300'
+                              : 'border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-800/60 dark:bg-blue-900/60 dark:text-blue-200'
                           }`}
                         >
                           {org.is_private ? 'Private' : 'Public'}
@@ -513,8 +512,8 @@ export default function Organizations() {
                         {renderMembershipBadge(org.id)}
                       </div>
                     </div>
-                    <div className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-gray-700/60">
-                      <span className="text-[11px] text-gray-500">
+                    <div className="mt-auto flex items-center justify-between gap-2 border-t border-gray-200 pt-2 dark:border-gray-700/60">
+                      <span className="text-[11px] text-gray-600 dark:text-gray-500">
                         Created{' '}
                         {new Date(org.created_at).toLocaleDateString('en-US', {
                           month: 'short',
@@ -526,7 +525,7 @@ export default function Organizations() {
                         <button
                           type="button"
                           onClick={() => navigate(`/organizations/${org.slug}`)}
-                          className="px-2.5 py-1 text-[11px] rounded-full border border-gray-700 text-gray-200 hover:bg-gray-700/70"
+                          className="rounded-full border border-gray-300 px-2.5 py-1 text-[11px] text-gray-800 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/70"
                         >
                           View
                         </button>
@@ -534,7 +533,7 @@ export default function Organizations() {
                           <button
                             type="button"
                             onClick={() => handleOpenManageMembers(org.id)}
-                            className="px-2.5 py-1 text-[11px] rounded-full border border-blue-700 text-blue-200 hover:bg-blue-700/40"
+                            className="rounded-full border border-blue-300 px-2.5 py-1 text-[11px] text-blue-800 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-700/40"
                           >
                             Manage
                           </button>
@@ -552,7 +551,7 @@ export default function Organizations() {
                           <button
                             type="button"
                             disabled
-                            className="px-2.5 py-1 text-[11px] rounded-full bg-gray-700 text-gray-300 cursor-default"
+                            className="cursor-default rounded-full bg-gray-200 px-2.5 py-1 text-[11px] text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                           >
                             Pending
                           </button>
@@ -583,18 +582,18 @@ export default function Organizations() {
             if (e.target === e.currentTarget) handleCloseManageMembers()
           }}
         >
-          <div className="w-full max-w-xl bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+          <div className="w-full max-w-xl overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800">
               <div>
-                <p className="text-white font-semibold text-sm">Manage members</p>
-                <p className="text-xs text-gray-400">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">Manage members</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Approve or remove members for this organization.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleCloseManageMembers}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                 aria-label="Close"
               >
                 ✕
@@ -602,32 +601,32 @@ export default function Organizations() {
             </div>
             <div className="max-h-[70vh] overflow-y-auto p-4 space-y-4 text-sm">
               {manageLoading ? (
-                <p className="text-gray-400">Loading members...</p>
+                <p className="text-gray-600 dark:text-gray-400">Loading members...</p>
               ) : manageError ? (
-                <p className="text-red-300">{manageError}</p>
+                <p className="text-red-600 dark:text-red-300">{manageError}</p>
               ) : manageMembers.length === 0 ? (
-                <p className="text-gray-400 text-sm">No members yet.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">No members yet.</p>
               ) : (
                 <>
                   <div className="space-y-2">
-                    <p className="text-xs uppercase tracking-wide text-gray-500">
+                    <p className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-500">
                       Pending requests
                     </p>
                     {manageMembers.filter((m) => m.status === 'pending').length === 0 ? (
-                      <p className="text-xs text-gray-500">No pending requests.</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-500">No pending requests.</p>
                     ) : (
                       manageMembers
                         .filter((m) => m.status === 'pending')
                         .map((m) => (
                           <div
                             key={m.id}
-                            className="flex items-center justify-between gap-3 border border-gray-800 rounded-lg px-3 py-2"
+                            className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-800"
                           >
                             <div className="min-w-0">
-                              <p className="text-xs text-white font-medium truncate">
+                              <p className="truncate text-xs font-medium text-gray-900 dark:text-white">
                                 {m.full_name || m.email || 'User'}
                               </p>
-                              <p className="text-[11px] text-gray-400 truncate">
+                              <p className="truncate text-[11px] text-gray-600 dark:text-gray-400">
                                 {m.email || 'Pending member'}
                               </p>
                             </div>
@@ -635,7 +634,7 @@ export default function Organizations() {
                               <button
                                 type="button"
                                 onClick={() => handleRejectMember(m.id)}
-                                className="px-2 py-1 text-[11px] rounded-full border border-gray-700 text-gray-300 hover:bg-gray-800"
+                                className="rounded-full border border-gray-300 px-2 py-1 text-[11px] text-gray-800 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                               >
                                 Reject
                               </button>
@@ -652,29 +651,29 @@ export default function Organizations() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <p className="text-xs uppercase tracking-wide text-gray-500">
+                    <p className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-500">
                       Members
                     </p>
                     {manageMembers.filter((m) => m.status === 'approved').length === 0 ? (
-                      <p className="text-xs text-gray-500">No approved members yet.</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-500">No approved members yet.</p>
                     ) : (
                       manageMembers
                         .filter((m) => m.status === 'approved')
                         .map((m) => (
                           <div
                             key={m.id}
-                            className="flex items-center justify-between gap-3 border border-gray-800 rounded-lg px-3 py-2"
+                            className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-800"
                           >
                             <div className="min-w-0">
-                              <p className="text-xs text-white font-medium truncate">
+                              <p className="truncate text-xs font-medium text-gray-900 dark:text-white">
                                 {m.full_name || m.email || 'User'}
                               </p>
-                              <p className="text-[11px] text-gray-400 truncate">
+                              <p className="truncate text-[11px] text-gray-600 dark:text-gray-400">
                                 {m.email || 'Member'}
                               </p>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-800 text-gray-300">
+                              <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[10px] text-gray-800 dark:bg-gray-800 dark:text-gray-300">
                                 {m.role === 'owner'
                                   ? 'Owner'
                                   : m.role === 'manager'
@@ -699,7 +698,7 @@ export default function Organizations() {
           </div>
         </div>
       )}
-    </Layout>
+    </>
   )
 }
 

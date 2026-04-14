@@ -168,13 +168,13 @@ export default function FriendRequestButton({ userId, onStatusChange }: FriendRe
 
   if (checking) {
     return (
-      <div className="w-6 h-6 border-2 border-gray-600 border-t-white rounded-full animate-spin"></div>
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-800 dark:border-gray-600 dark:border-t-white"></div>
     )
   }
 
   if (status === 'accepted') {
     return (
-      <span className="px-3 py-1 text-xs bg-green-900/50 text-green-300 rounded-full">
+      <span className="rounded-full bg-green-100 px-3 py-1 text-xs text-green-800 dark:bg-green-900/50 dark:text-green-300">
         Friends
       </span>
     )
@@ -185,7 +185,7 @@ export default function FriendRequestButton({ userId, onStatusChange }: FriendRe
       <button
         onClick={cancelFriendRequest}
         disabled={loading}
-        className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-full transition-colors disabled:opacity-50"
+        className="rounded-full bg-gray-200 px-3 py-1 text-xs text-gray-800 transition-colors hover:bg-gray-300 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
       >
         {loading ? '...' : 'Pending'}
       </button>
@@ -205,7 +205,7 @@ export default function FriendRequestButton({ userId, onStatusChange }: FriendRe
         <button
           onClick={cancelFriendRequest}
           disabled={loading}
-          className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors disabled:opacity-50"
+          className="rounded bg-gray-200 px-2 py-1 text-xs text-gray-800 transition-colors hover:bg-gray-300 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
         >
           {loading ? '...' : 'Decline'}
         </button>

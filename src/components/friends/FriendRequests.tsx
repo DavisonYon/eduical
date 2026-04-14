@@ -1,4 +1,5 @@
 import { useEffect, useState, forwardRef, useImperativeHandle, useCallback, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 
@@ -26,7 +27,7 @@ export interface FriendRequestsRef {
   refresh: () => void
 }
 
-const FriendRequests = forwardRef<FriendRequestsRef>((props, ref) => {
+const FriendRequests = forwardRef<FriendRequestsRef>((_props, ref) => {
   const { user } = useAuth()
   const [receivedRequests, setReceivedRequests] = useState<FriendRequest[]>([])
   const [sentRequests, setSentRequests] = useState<FriendRequest[]>([])
@@ -141,7 +142,7 @@ const FriendRequests = forwardRef<FriendRequestsRef>((props, ref) => {
     refresh: fetchFriendRequests,
   }), [fetchFriendRequests])
 
-  const handleAccept = async (requestId: string, requesterId: string) => {
+  const handleAccept = async (requestId: string) => {
     try {
       const { error } = await supabase
         .from('friendships')
@@ -217,23 +218,23 @@ const FriendRequests = forwardRef<FriendRequestsRef>((props, ref) => {
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="flex border-b border-gray-700">
+      <div className="flex border-b border-gray-200 dark:border-gray-700">
         <button
           onClick={() => setActiveTab('received')}
-          className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+          className={`flex-1 border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === 'received'
-              ? 'text-white border-b-2 border-blue-500'
-              : 'text-gray-400 hover:text-white'
+              ? 'border-blue-600 text-gray-900 dark:border-blue-500 dark:text-white'
+              : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
           }`}
         >
           Received ({receivedRequests.length})
         </button>
         <button
           onClick={() => setActiveTab('sent')}
-          className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+          className={`flex-1 border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === 'sent'
-              ? 'text-white border-b-2 border-blue-500'
-              : 'text-gray-400 hover:text-white'
+              ? 'border-blue-600 text-gray-900 dark:border-blue-500 dark:text-white'
+              : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
           }`}
         >
           Sent ({sentRequests.length})
@@ -242,19 +243,19 @@ const FriendRequests = forwardRef<FriendRequestsRef>((props, ref) => {
 
       {/* Requests List */}
       {loading ? (
-        <div className="text-center py-8 text-gray-400 text-sm">Loading...</div>
+        <div className="py-8 text-center text-sm text-gray-600 dark:text-gray-400">Loading...</div>
       ) : error ? (
         <div className="text-center py-8 text-red-400 text-sm">
           <p>{error}</p>
           <button
             onClick={fetchFriendRequests}
-            className="mt-2 px-3 py-1 bg-red-900/50 hover:bg-red-900/70 rounded text-xs"
+            className="mt-2 rounded bg-red-100 px-3 py-1 text-xs hover:bg-red-200 dark:bg-red-900/50 dark:hover:bg-red-900/70"
           >
             Retry
           </button>
         </div>
       ) : !hasRequests ? (
-        <div className="text-center py-8 text-gray-400 text-sm">
+        <div className="py-8 text-center text-sm text-gray-600 dark:text-gray-400">
           No {activeTab} friend requests
         </div>
       ) : (
@@ -262,29 +263,41 @@ const FriendRequests = forwardRef<FriendRequestsRef>((props, ref) => {
           {requests.map((request) => (
             <div
               key={request.id}
-              className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg hover:bg-gray-750 transition-colors"
+              className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-colors hover:bg-gray-100 dark:border-transparent dark:bg-gray-800 dark:hover:bg-gray-700"
             >
-              {(() => {
+                           {(() => {
                 const person = activeTab === 'received' ? request.requester : request.addressee
-                return person?.profile_picture ? (
+                const profileUserId = activeTab === 'received' ? request.requester_id : request.addressee_id
+                const avatar = person?.profile_picture ? (
                   <img
                     src={person.profile_picture}
                     alt={getName(request)}
-                    className="w-10 h-10 rounded-full object-cover border border-gray-600 flex-shrink-0"
+                    className="h-10 w-10 rounded-full border border-gray-300 object-cover dark:border-gray-600"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-medium text-sm">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+                    <span className="text-sm font-medium text-gray-800 dark:text-white">
                       {getInitials(request)}
                     </span>
                   </div>
                 )
+                return (
+                  <Link
+                    to={`/user/${profileUserId}`}
+                    className="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    {avatar}
+                  </Link>
+                )
               })()}
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-medium text-sm truncate">
+              <div className="min-w-0 flex-1">
+                <Link
+                  to={`/user/${activeTab === 'received' ? request.requester_id : request.addressee_id}`}
+                  className="block truncate text-sm font-medium text-gray-900 hover:underline dark:text-white"
+                >
                   {getName(request)}
-                </p>
-                <p className="text-gray-400 text-xs">
+                </Link>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   {new Date(request.created_at).toLocaleDateString()}
                 </p>
               </div>
@@ -292,14 +305,14 @@ const FriendRequests = forwardRef<FriendRequestsRef>((props, ref) => {
                 {activeTab === 'received' ? (
                   <>
                     <button
-                      onClick={() => handleAccept(request.id, request.requester_id)}
+                      onClick={() => handleAccept(request.id)}
                       className="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
                     >
                       Accept
                     </button>
                     <button
                       onClick={() => handleDecline(request.id)}
-                      className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+                      className="rounded bg-gray-200 px-3 py-1.5 text-xs text-gray-800 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                     >
                       Decline
                     </button>
@@ -307,7 +320,7 @@ const FriendRequests = forwardRef<FriendRequestsRef>((props, ref) => {
                 ) : (
                   <button
                     onClick={() => handleCancel(request.id)}
-                    className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+                    className="rounded bg-gray-200 px-3 py-1.5 text-xs text-gray-800 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                   >
                     Cancel
                   </button>

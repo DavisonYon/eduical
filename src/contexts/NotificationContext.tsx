@@ -36,7 +36,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const [visible, setVisible] = useState<ToastNotification | null>(null)
   const [desktopToastsEnabled, setDesktopToastsEnabled] = useState(true)
   const [isDesktop, setIsDesktop] = useState(true)
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const refreshToastPreference = useCallback(async () => {
     if (!user) {
@@ -121,7 +121,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       {children}
       {showToast && (
         <div className="fixed bottom-4 right-4 z-[9999] hidden md:block pointer-events-none">
-          <div className="bg-gray-800 border border-gray-600 rounded-lg shadow-xl px-4 py-3 min-w-[280px] max-w-[360px] transform transition-all duration-200 ease-out">
+          <div className="min-w-[280px] max-w-[360px] transform rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-xl transition-all duration-200 ease-out dark:border-gray-600 dark:bg-gray-800">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
                 {visible!.type === 'message' && (
@@ -187,9 +187,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
               </div>
               <div className="flex-1 min-w-0">
                 {visible!.title && (
-                  <p className="text-sm font-medium text-white truncate">{visible!.title}</p>
+                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">{visible!.title}</p>
                 )}
-                <p className="text-sm text-gray-300">{visible!.message}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{visible!.message}</p>
               </div>
             </div>
           </div>
